@@ -1,0 +1,33 @@
+basic command: `guagacode <source file name> <output file name> [flags]`
+
+notes:
+1. by default, a `.c` file is outputted by the program.
+2. if an invalid flag is passed, an "invalid flag" screen is displayed.
+3. if the wrong number of arguments is given, "incorrect usage" is displayed.
+4. if no arguments or flags are passed, an explanatory screen is displayed.
+
+invalid flag message:
+```
+invaid flag: <name of flag>!
+valid flags are: <list of valid flags>
+```
+
+incorrect usage message:
+```
+incorrect usage!
+correct usage: `guagacode <source file> <output file name> [flags]`
+```
+
+explanatory screen:
+```
+Guagacode (/ɡwɑ.ɡə.koʊd/) is a programming language made for a YouTube tutorial.
+Check the channel "@tirimid" on YouTube.
+```
+
+valid flags:
+        -o        : use GCC to output object file
+        -b        : use GCC to output an executable binary
+        -O0       : tell GCC to use -O0 (requires -o or -b)
+        -O1       : tell GCC to use -O1 (requires -o or -b)
+        -O2       : tell GCC to use -O2 (requires -o or -b)
+        -O3       : tell GCC to use -O3 (requires -o or -b)
