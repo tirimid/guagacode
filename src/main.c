@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <limits.h>
+
+#include "lex.h"
 
 #define ALL_GCC_OUTPUT_BITS (FLAG_BIT_OBJECT | FLAG_BIT_BINARY)
 #define ALL_OPTIMIZE_BITS (FLAG_BIT_OPTIMIZE_0 | \
@@ -49,9 +52,24 @@ static bool flag_is_valid(char const *flag)
     return false;
 }
 
-int main(int argc, char const **argv)
+static int count_set_bits(unsigned long val)
 {
-    int i;
+    int i, cnt = 0;
+
+    for (i = 0; i < sizeof(val) * CHAR_BIT; ++i) {
+        if ((val & 1 << i) > 0)
+            ++cnt;
+    }
+
+    return cnt / 2;
+}
+
+int main(int argc, char const *argv[])
+{
+    int i, file_len;
+    char buf[512] = {'\0'};
+    FILE *fp;
+    struct token toks[7];
     
     /* print the explanatory message if no arguments are given. */
     if (argc == 1) {
@@ -96,6 +114,30 @@ int main(int argc, char const **argv)
         && (passed_flags & ALL_GCC_OUTPUT_BITS) == 0) {
         printf("optimization flags require GCC output!\n");
         return -1;
+    }
+
+    if (count_set_bits(passed_flags & ALL_OPTIMIZE_BITS) > 1) {
+        printf("only one optimization level can be enabled!\n");
+        return -1;
+    }
+
+    if (count_set_bits(passed_flags & ALL_GCC_OUTPUT_BITS) > 1) {
+        printf("only one GCC output format can be enabled!\n");
+        return -1;
+    }
+
+    /* test the functionality of the lexer. */
+    fp = fopen("design/lex_test.ggc", "rb");
+    fseek(fp, 0, SEEK_END);
+    file_len = ftell(fp);
+    fseek(fp, 0, SEEK_SET);
+    fread(buf, file_len, 1, fp);
+    fclose(fp);
+    lex(toks, buf, file_len);
+
+    for (i = 0; i < 7; ++i) {
+        print_token(&toks[i]);
+        printf("\n");
     }
     
     return 0;
