@@ -38,8 +38,6 @@ static enum flag_bit valid_flag_meanings[] = {
     FLAG_BIT_OPTIMIZE_3
 };
 
-static unsigned long passed_flags = 0;
-
 static bool flag_is_valid(char const *flag)
 {
     int i;
@@ -70,6 +68,7 @@ int main(int argc, char const *argv[])
     char buf[512] = {'\0'};
     FILE *fp;
     struct token toks[7];
+    unsigned long passed_flags = 0;
     
     /* print the explanatory message if no arguments are given. */
     if (argc == 1) {
@@ -133,11 +132,14 @@ int main(int argc, char const *argv[])
     fseek(fp, 0, SEEK_SET);
     fread(buf, file_len, 1, fp);
     fclose(fp);
-    lex(toks, buf, file_len);
+
+    if (lex(toks, buf, file_len) == -1)
+        return -1;
 
     for (i = 0; i < 7; ++i) {
         print_token(&toks[i]);
         printf("\n");
+        destroy_token(&toks[i]);
     }
     
     return 0;

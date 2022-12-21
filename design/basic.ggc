@@ -34,25 +34,26 @@ entry_point {
 
 function variable_definitions() {
     // the following syntax is used to define a variable:
-    type variable_name := expression;
+    var type variable_name = expression;
 }
 
 function expressions() {
     // the following operators can be used in expressions.
     // they are read with descending precedence.
     //
-    // `(` `)`     : parentheses (LTR).
-    // `!`         : logical negation (RTL).
-    // `*` `/` `%` : multiplication (LTR), division (LTR), remainder (LTR).
-    // `+` `-`     : addition (LTR), subtraction (LTR).
-    // `&` `|` `^` : logical AND (LTR), logical OR (LTR), logical XOR (LTR).
-    // `=`         : assignment (RTL).
+    // `(` `)`      : parentheses (LTR).
+    // `!`          : logical negation (RTL).
+    // `*` `/` `%`  : multiplication (LTR), division (LTR), remainder (LTR).
+    // `+` `-`      : addition (LTR), subtraction (LTR).
+    // `>` `<` `==` : greater than (LTR), less than (LTR), equality (LTR).
+    // `&` `|` `^`  : logical AND (LTR), logical OR (LTR), logical XOR (LTR).
+    // `=`          : assignment (RTL).
     //
     // expressions are terminated by semicolons.
     // see the below example:
-    int32 a := 0;
-    int32 b := 0;
-    bool c := false;
+    var int32 a = 0;
+    var int32 b = 0;
+    var bool c = false;
 
     b = a = 32; // `a` is assigned to `32`, then `b` is assigned to `a`.
     c = a & b; // `c` is assigned to the result of `32 & 32`, `true`.

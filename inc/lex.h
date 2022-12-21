@@ -1,6 +1,8 @@
 #ifndef LEX_H__
 #define LEX_H__
 
+#include <stddef.h>
+
 enum token_type {
     TOKEN_TYPE_IDENTIFIER,
     TOKEN_TYPE_STRING,
@@ -9,13 +11,14 @@ enum token_type {
 
 /* free all allocated memory by calling `destroy_token()`. */
 struct token {
-    enum token_type type;
     char *conts;
-    unsigned long line, pos_on_line, length;
+    size_t length;
+    unsigned line, column;
+    enum token_type type;
 };
 
 void destroy_token(struct token *tok);
 void print_token(struct token const *tok);
-int lex(struct token out_toks[], char const *src, unsigned long src_len);
+int lex(struct token out_toks[], char const *src, size_t src_len);
 
 #endif
