@@ -29,7 +29,7 @@ static char const *valid_flags[] = {
     "-O3"
 };
 
-static enum flag_bit valid_flag_meanings[] = {
+static enum flag_bit const valid_flag_meanings[] = {
     FLAG_BIT_OBJECT,
     FLAG_BIT_BINARY,
     FLAG_BIT_OPTIMIZE_0,
