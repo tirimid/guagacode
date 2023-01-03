@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <limits.h>
 
+#include "pp.h"
 #include "lex.h"
 
 #define ALL_GCC_OUTPUT_BITS (FLAG_BIT_OBJECT | FLAG_BIT_BINARY)
@@ -132,6 +133,17 @@ int main(int argc, char const *argv[])
     fseek(fp, 0, SEEK_SET);
     fread(buf, file_len, 1, fp);
     fclose(fp);
+
+    printf("==== before preprocessing ====\n");
+    for (i = 0; i < file_len; ++i)
+        putc(buf[i], stdout);
+
+    file_len = preprocess(buf, file_len);
+    printf("==== after preprocessing ====\n");
+    for (i = 0; i < file_len; ++i)
+        putc(buf[i], stdout);
+
+    return 0;
 
     if (lex(toks, buf, file_len) == -1)
         return -1;

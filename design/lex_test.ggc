@@ -1,3 +1,5 @@
-this is a ; file
+// this is a comment.
+this is a test file
 "this is a test file"
+"with a comment // here"
 3.141592653589
