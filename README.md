@@ -1,9 +1,11 @@
 # guagacode
 
+![Guagacode logo](img/ggc_logo.png)
+
 ## Introduction
 Guagacode (/ɡwɑ.ɡə.koʊd/) is a procedural programming language made for a
-YouTube tutorial series. This language implements a custom lexer, parser, and C
-code generation.
+YouTube tutorial series. This language implements a custom preprocessor, lexer,
+parser, and C code generation.
 
 ## Build requirements
 * gcc/clang
