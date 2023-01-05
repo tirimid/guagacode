@@ -66,10 +66,10 @@ static int count_set_bits(unsigned long val)
 int main(int argc, char const *argv[])
 {
     int i, file_len;
-    char buf[512] = {'\0'};
+    char buf[4096] = {'\0'};
     FILE *fp;
-    struct token toks[7];
     unsigned long passed_flags = 0;
+    token_list tl = token_list_create();
     
     /* print the explanatory message if no arguments are given. */
     if (argc == 1) {
@@ -127,32 +127,24 @@ int main(int argc, char const *argv[])
     }
 
     /* test the functionality of the lexer. */
-    fp = fopen("design/lex_test.ggc", "rb");
+    fp = fopen("design/basic.ggc", "rb");
     fseek(fp, 0, SEEK_END);
     file_len = ftell(fp);
     fseek(fp, 0, SEEK_SET);
     fread(buf, file_len, 1, fp);
     fclose(fp);
 
-    printf("==== before preprocessing ====\n");
-    for (i = 0; i < file_len; ++i)
-        putc(buf[i], stdout);
-
     file_len = preprocess(buf, file_len);
-    printf("==== after preprocessing ====\n");
-    for (i = 0; i < file_len; ++i)
-        putc(buf[i], stdout);
 
-    return 0;
-
-    if (lex(toks, buf, file_len) == -1)
+    if (lex(&tl, buf, file_len) == -1)
         return -1;
 
-    for (i = 0; i < 7; ++i) {
-        print_token(&toks[i]);
+    for (i = 0; i < tl.size; ++i) {
+        print_token(token_list_get(&tl, i));
         printf("\n");
-        destroy_token(&toks[i]);
     }
+
+    token_list_destroy(&tl);
     
     return 0;
 }

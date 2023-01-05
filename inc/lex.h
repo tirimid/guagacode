@@ -3,6 +3,10 @@
 
 #include <stddef.h>
 
+#include "dynarr.h"
+
+typedef struct dynarr token_list;
+
 enum token_type {
     /* language keywords. */
     TOKEN_TYPE_KEYWORD_FUNCTION,
@@ -57,6 +61,12 @@ struct token {
 
 void destroy_token(struct token *tok);
 void print_token(struct token const *tok);
-int lex(struct token out_toks[], char const *src, size_t src_len);
+int lex(token_list *tl, char const *src, size_t src_len);
+
+token_list token_list_create(void);
+void token_list_destroy(token_list *tl);
+void token_list_add_token(token_list *tl, struct token const *tok);
+struct token const *token_list_get(token_list const *tl, size_t ind);
+struct token *token_list_get_mut(token_list *tl, size_t ind);
 
 #endif

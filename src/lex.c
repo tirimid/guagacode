@@ -152,10 +152,10 @@ static enum token_type identifier_type(char const *conts)
     return TOKEN_TYPE_IDENTIFIER;
 }
 
-int lex(struct token out_toks[], char const *src, size_t src_len)
+int lex(token_list *tl, char const *src, size_t src_len)
 {
     unsigned line = 1, column = 1;
-    size_t next_tok_ind = 0, i = 0;
+    size_t i = 0;
 
     /* first pass, extract textual contents into tokens. */
     while (i < src_len) {
@@ -185,14 +185,46 @@ int lex(struct token out_toks[], char const *src, size_t src_len)
 
         i += new_tok.length;
         column += new_tok.length;
-        out_toks[next_tok_ind++] = new_tok;
+        token_list_add_token(tl, &new_tok);
     }
 
     /* second pass, determine actual type of extracted tokens. */
-    for (i = 0; i < next_tok_ind; ++i) {
-        if (out_toks[i].type == TOKEN_TYPE_IDENTIFIER)
-            out_toks[i].type = identifier_type(out_toks[i].conts);
+    for (i = 0; i < tl->size; ++i) {
+        struct token *tok = token_list_get_mut(tl, i);
+        
+        if (tok->type == TOKEN_TYPE_IDENTIFIER)
+            tok->type = identifier_type(tok->conts);
     }
 
     return 0;
+}
+
+token_list token_list_create(void)
+{
+    return dynarr_create(sizeof(struct token));
+}
+
+void token_list_destroy(token_list *tl)
+{
+    size_t i;
+
+    for (i = 0; i < tl->size; ++i)
+        destroy_token(token_list_get_mut(tl, i));
+
+    dynarr_destroy(tl);
+}
+
+void token_list_add_token(token_list *tl, struct token const *tok)
+{
+    dynarr_add_item(tl, tok);
+}
+
+struct token const *token_list_get(token_list const *tl, size_t ind)
+{
+    return dynarr_get(tl, ind);
+}
+
+struct token *token_list_get_mut(token_list *tl, size_t ind)
+{
+    return dynarr_get_mut(tl, ind);
 }
