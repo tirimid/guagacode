@@ -1,6 +1,6 @@
 # guagacode
 
-![Guagacode logo](img/ggc256.png)
+![Guagacode logo](img/ggc128.png)
 
 ## Introduction
 Guagacode (/ɡwɑ.ɡə.koʊd/) is a procedural programming language made for a
