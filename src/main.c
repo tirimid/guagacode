@@ -79,7 +79,7 @@ int main(int argc, char const *argv[])
         return 0;
     }
 
-    /* make sure there are enough arguments to actually run the progam. */
+    /* make sure there are enough arguments to actually run the program. */
     if (argc < 3) {
         printf("incorrect usage!\n"
                "correct usage: `guagacode <source> <output> [flags]`\n");
