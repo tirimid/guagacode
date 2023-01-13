@@ -61,7 +61,7 @@ struct token {
 
 void destroy_token(struct token *tok);
 void print_token(struct token const *tok);
-int lex(token_list *tl, char const *src, size_t src_len);
+void lex(token_list *tl, char const *src, size_t src_len);
 
 token_list token_list_create(void);
 void token_list_destroy(token_list *tl);

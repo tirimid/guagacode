@@ -152,7 +152,7 @@ static enum token_type identifier_type(char const *conts)
     return TOKEN_TYPE_IDENTIFIER;
 }
 
-int lex(token_list *tl, char const *src, size_t src_len)
+void lex(token_list *tl, char const *src, size_t src_len)
 {
     unsigned line = 1, column = 1;
     size_t i = 0;
@@ -180,7 +180,7 @@ int lex(token_list *tl, char const *src, size_t src_len)
             continue;
         } else {
             printf("unrecognized token at l=%d,c=%d!\n", line, column);
-            return -1;
+            exit(-1);
         }
 
         i += new_tok.length;
@@ -195,8 +195,6 @@ int lex(token_list *tl, char const *src, size_t src_len)
         if (tok->type == TOKEN_TYPE_IDENTIFIER)
             tok->type = identifier_type(tok->conts);
     }
-
-    return 0;
 }
 
 token_list token_list_create(void)

@@ -1,150 +1,41 @@
 #include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
-#include <limits.h>
+#include <stddef.h>
+#include <stdlib.h>
 
+#include "cli.h"
 #include "pp.h"
 #include "lex.h"
-
-#define ALL_GCC_OUTPUT_BITS (FLAG_BIT_OBJECT | FLAG_BIT_BINARY)
-#define ALL_OPTIMIZE_BITS (FLAG_BIT_OPTIMIZE_0 | \
-                           FLAG_BIT_OPTIMIZE_1 | \
-                           FLAG_BIT_OPTIMIZE_2 | \
-                           FLAG_BIT_OPTIMIZE_3)
-
-enum flag_bit {
-    FLAG_BIT_OBJECT = 1 << 0,
-    FLAG_BIT_BINARY = 1 << 1,
-    FLAG_BIT_OPTIMIZE_0 = 1 << 2,
-    FLAG_BIT_OPTIMIZE_1 = 1 << 3,
-    FLAG_BIT_OPTIMIZE_2 = 1 << 4,
-    FLAG_BIT_OPTIMIZE_3 = 1 << 5
-};
-
-static char const *valid_flags[] = {
-    "-o",
-    "-b",
-    "-O0",
-    "-O1",
-    "-O2",
-    "-O3"
-};
-
-static enum flag_bit const valid_flag_meanings[] = {
-    FLAG_BIT_OBJECT,
-    FLAG_BIT_BINARY,
-    FLAG_BIT_OPTIMIZE_0,
-    FLAG_BIT_OPTIMIZE_1,
-    FLAG_BIT_OPTIMIZE_2,
-    FLAG_BIT_OPTIMIZE_3
-};
-
-static bool flag_is_valid(char const *flag)
-{
-    int i;
-
-    for (i = 0; i < sizeof(valid_flags) / sizeof(valid_flags[0]); ++i) {
-        if (strcmp(flag, valid_flags[i]) == 0)
-            return true;
-    }
-
-    return false;
-}
-
-static int count_set_bits(unsigned long val)
-{
-    int i, cnt = 0;
-
-    for (i = 0; i < sizeof(val) * CHAR_BIT; ++i) {
-        if ((val & 1 << i) > 0)
-            ++cnt;
-    }
-
-    return cnt / 2;
-}
+#include "parse.h"
 
 int main(int argc, char const *argv[])
 {
-    int i, file_len;
-    char buf[4096] = {'\0'};
-    FILE *fp;
-    unsigned long passed_flags = 0;
-    token_list tl = token_list_create();
-    
-    /* print the explanatory message if no arguments are given. */
-    if (argc == 1) {
-        printf("Guagacode (/ɡwɑ.ɡə.koʊd/) is a programming language made for a"
-               " YouTube tutorial.\n"
-               "Check the channel \"@tirimid\" on YouTube.\n");
-        return 0;
-    }
+    unsigned passed_flags = cli_run(argc, argv);
+    FILE *fp = fopen(argv[1], "rb");
+    size_t src_len;
+    char *src;
+    token_list toks = token_list_create();
 
-    /* make sure there are enough arguments to actually run the program. */
-    if (argc < 3) {
-        printf("incorrect usage!\n"
-               "correct usage: `guagacode <source> <output> [flags]`\n");
+    if (fp == NULL) {
+        printf("reading an invalid file: %s!\n", argv[1]);
         return -1;
     }
 
-    /* verify that all passed flags are valid. */
-    for (i = 3; i < argc; ++i) {
-        if (flag_is_valid(argv[i]))
-            continue;
-        
-        printf("invalid flag: %s!\n"
-               "valid flags are:\n", argv[i]);
-        for (i = 0; i < sizeof(valid_flags) / sizeof(valid_flags[0]); ++i)
-            printf("    %s\n", valid_flags[i]);
-        
-        return -1;
-    }
-
-    /* extract all passed flags into an integer as bits. */
-    for (i = 3; i < argc; ++i) {
-        int j;
-
-        for (j = 0; j < sizeof(valid_flags) / sizeof(valid_flags[0]); ++j) {
-            if (strcmp(argv[i], valid_flags[j]) == 0)
-                passed_flags |= valid_flag_meanings[j];
-        }
-    }
-
-    /* check that flags are mutually valid. */
-    if ((passed_flags & ALL_OPTIMIZE_BITS) > 0
-        && (passed_flags & ALL_GCC_OUTPUT_BITS) == 0) {
-        printf("optimization flags require GCC output!\n");
-        return -1;
-    }
-
-    if (count_set_bits(passed_flags & ALL_OPTIMIZE_BITS) > 1) {
-        printf("only one optimization level can be enabled!\n");
-        return -1;
-    }
-
-    if (count_set_bits(passed_flags & ALL_GCC_OUTPUT_BITS) > 1) {
-        printf("only one GCC output format can be enabled!\n");
-        return -1;
-    }
-
-    /* test the functionality of the lexer. */
-    fp = fopen("design/basic.ggc", "rb");
+    /* read given file into buffer. */
     fseek(fp, 0, SEEK_END);
-    file_len = ftell(fp);
+    src_len = ftell(fp);
     fseek(fp, 0, SEEK_SET);
-    fread(buf, file_len, 1, fp);
+
+    src = malloc(src_len);
+    fread(src, src_len, 1, fp);
     fclose(fp);
 
-    file_len = preprocess(buf, file_len);
+    /* preprocess the buffer. */
+    src_len = preprocess(src, src_len);
 
-    if (lex(&tl, buf, file_len) == -1)
-        return -1;
+    /* lex the buffer. */
+    lex(&toks, src, src_len);
+    free(src);
 
-    for (i = 0; i < tl.size; ++i) {
-        print_token(token_list_get(&tl, i));
-        printf("\n");
-    }
-
-    token_list_destroy(&tl);
-    
+    token_list_destroy(&toks);
     return 0;
 }
