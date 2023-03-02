@@ -6,30 +6,26 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-static char const *valid_flags[] = {
-    "-o",
-    "-b",
-    "-O0",
-    "-O1",
-    "-O2",
-    "-O3"
+struct flag_lut_entry {
+    char const *flag;
+    enum flag_bit bit;
 };
 
-static enum flag_bit const valid_flag_meanings[] = {
-    FLAG_BIT_OBJECT,
-    FLAG_BIT_BINARY,
-    FLAG_BIT_OPTIMIZE_0,
-    FLAG_BIT_OPTIMIZE_1,
-    FLAG_BIT_OPTIMIZE_2,
-    FLAG_BIT_OPTIMIZE_3
+static struct flag_lut_entry const flags[] = {
+    {"-o", FLAG_BIT_OBJECT},
+    {"-b", FLAG_BIT_BINARY},
+    {"-O0", FLAG_BIT_OPTIMIZE_0},
+    {"-O1", FLAG_BIT_OPTIMIZE_1},
+    {"-O2", FLAG_BIT_OPTIMIZE_2},
+    {"-O3", FLAG_BIT_OPTIMIZE_3}
 };
 
 static bool flag_is_valid(char const *flag)
 {
     int i;
 
-    for (i = 0; i < sizeof(valid_flags) / sizeof(valid_flags[0]); ++i) {
-        if (strcmp(flag, valid_flags[i]) == 0)
+    for (i = 0; i < sizeof(flags) / sizeof(flags[0]); ++i) {
+        if (strcmp(flag, flags[i].flag) == 0)
             return true;
     }
 
@@ -55,16 +51,16 @@ unsigned cli_run(int argc, char const *argv[])
     
     /* print the explanatory message if no arguments are given. */
     if (argc == 1) {
-        printf("Guagacode (/ɡwɑ.ɡə.koʊd/) is a programming language made for a"
-               " YouTube tutorial.\n"
-               "Check the channel \"@tirimid\" on YouTube.\n");
+        printf("Guagacode (/ɡwɑ.ɡə.koʊd/) is a programming language made for");
+        printf(" a YouTube tutorial.\n");
+        printf("Check the channel \"@tirimid\" on YouTube.\n");
         exit(0);
     }
 
     /* make sure there are enough arguments to actually run the program. */
     if (argc < 3) {
-        printf("incorrect usage!\n"
-               "correct usage: `guagacode <source> <output> [flags]`\n");
+        printf("incorrect usage!\n");
+        printf("correct usage: `guagacode <source> <output> [flags]`\n");
         exit(-1);
     }
 
@@ -73,10 +69,10 @@ unsigned cli_run(int argc, char const *argv[])
         if (flag_is_valid(argv[i]))
             continue;
         
-        printf("invalid flag: %s!\n"
-               "valid flags are:\n", argv[i]);
-        for (i = 0; i < sizeof(valid_flags) / sizeof(valid_flags[0]); ++i)
-            printf("    %s\n", valid_flags[i]);
+        printf("invalid flag: %s!\n");
+        printf("valid flags are:\n", argv[i]);
+        for (i = 0; i < sizeof(flags) / sizeof(flags[0]); ++i)
+            printf("    %s\n", flags[i].flag);
         
         exit(-1);
     }
@@ -85,9 +81,9 @@ unsigned cli_run(int argc, char const *argv[])
     for (i = 3; i < argc; ++i) {
         int j;
 
-        for (j = 0; j < sizeof(valid_flags) / sizeof(valid_flags[0]); ++j) {
-            if (strcmp(argv[i], valid_flags[j]) == 0)
-                passed_flags |= valid_flag_meanings[j];
+        for (j = 0; j < sizeof(flags) / sizeof(flags[0]); ++j) {
+            if (strcmp(argv[i], flags[j].flag) == 0)
+                passed_flags |= flags[j].bit;
         }
     }
 
